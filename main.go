@@ -1,3 +1,5 @@
+// enum2go reads enum definitions from C .h header files, and exports them as
+// Go code.
 package main
 
 import (
@@ -35,13 +37,14 @@ func main() {
 		}
 	}
 
+	var cmd *exec.Cmd
 	if *cpp != "" {
 		// run the header through cpp.
 		args := []string{}
 		for _, inc := range cppIncludes {
 			args = append(args, "-I", inc)
 		}
-		cmd := exec.Command(*cpp, args...)
+		cmd = exec.Command(*cpp, args...)
 		cmd.Stdin = fh
 		cmd.Stderr = os.Stderr
 
@@ -57,6 +60,13 @@ func main() {
 	tokens, err := cTokenize(fh)
 	if err != nil {
 		panic(err)
+	}
+
+	if cmd != nil {
+		if err := cmd.Wait(); err != nil {
+			fmt.Printf("gcc err: %s\n", err)
+			os.Exit(1)
+		}
 	}
 
 	outfh := os.Stdout

@@ -9,32 +9,21 @@ import (
 
 var (
 	ops = []string{
-		",",
-		"(",
-		")",
-		"*=",
-		"*",
-		"|=",
-		"|",
-		"{",
-		"}",
-		";",
-		"++",
-		"+=",
-		"+",
-		"--",
-		"-=",
-		"-",
-		"!",
-		"==",
-		"=",
-		"<",
-		"<<",
-		">",
-		">>",
-		",",
-		"/=",
-		"/",
+		",", ";", "&", ",", "?", ":",
+		"(", ")",
+		"*=", "*",
+		"|=", "|",
+		"{", "}",
+		"++", "+=", "+",
+		"--", "-=", "-",
+		"!=", "!",
+		"==", "=",
+		"<", "<<",
+		">", ">>",
+		"/=", "/",
+		"%=", "%",
+		"~=", "~",
+		".",
 	}
 )
 
@@ -44,19 +33,19 @@ func cTokenize(r io.Reader) ([]string, error) {
 		b      = bufio.NewReader(r)
 		tokens []string
 	)
-	for {
-		l, err := b.ReadString('\n')
-		if err != nil {
-			if err == io.EOF {
-				return tokens, nil
-			}
-			return nil, err
-		}
+	var err error
+	for err == nil {
+		var l string
+		l, err = b.ReadString('\n')
 		if strings.HasPrefix(l, "#") {
 			continue
 		}
 		tokens = append(tokens, tokenify(l)...)
 	}
+	if err == io.EOF {
+		return tokens, nil
+	}
+	return nil, err
 }
 
 func tokenify(l string) []string {
@@ -74,6 +63,17 @@ loop:
 		}
 		c := rune(l[0])
 
+		// String?
+		if c == '"' || c == '\'' {
+			end := strings.IndexRune(l[1:], c)
+			if end < 0 {
+				end = len(l) - 1
+			}
+			ts = append(ts, l[:end+2])
+			l = l[end+2:]
+			continue
+		}
+
 		// Keyword or variable?
 		isWord := func(r rune) bool {
 			// TODO: this will do?
@@ -86,6 +86,9 @@ loop:
 		}
 		if isWord(c) {
 			end := strings.IndexFunc(l, func(r rune) bool { return !isWord(r) })
+			if end < 0 {
+				end = len(l)
+			}
 			ts = append(ts, l[:end])
 			l = l[end:]
 			continue
