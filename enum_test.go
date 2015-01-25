@@ -45,3 +45,14 @@ func TestBasic(t *testing.T) {
 		}
 	}
 }
+
+func TestGoify(t *testing.T) {
+	for src, want := range map[string]string{
+		"nf_conntrack_attr":  "NfConntrackAttr",
+		"ATTR_ORIG_IPV4_SRC": "AttrOrigIpv4Src",
+	} {
+		if have := goify(src); have != want {
+			t.Errorf("have: %q, want %q", have, want)
+		}
+	}
+}

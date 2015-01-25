@@ -92,7 +92,7 @@ func splitElem(toks []string) [][]string {
 func enumToGo(e *cEnum) (string, error) {
 	var (
 		b        = bytes.Buffer{}
-		typeName = e.Name
+		typeName = goify(e.Name)
 	)
 
 	b.WriteString(fmt.Sprintf("type %v int\n", typeName))
@@ -125,7 +125,7 @@ func enumToGo(e *cEnum) (string, error) {
 			return "", fmt.Errorf("value too complex: %s", strings.Join(elem.Value, " "))
 		}
 		values[elem.Name] = i
-		eName := goName(elem.Name)
+		eName := goify(elem.Name)
 		b.WriteString(fmt.Sprintf("\t%v %v = %d\n", eName, typeName, i))
 		i++
 	}
@@ -135,7 +135,11 @@ func enumToGo(e *cEnum) (string, error) {
 	return b.String(), nil
 }
 
-// TODO
-func goName(n string) string {
-	return n
+// goify makes a C style variable more Go like.
+func goify(s string) string {
+	s = strings.ToLower(s)
+	s = strings.Replace(s, "_", " ", -1)
+	s = strings.Title(s)
+	s = strings.Replace(s, " ", "", -1)
+	return s
 }
