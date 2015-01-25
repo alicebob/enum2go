@@ -114,7 +114,6 @@ func enumToGo(e *cEnum) (string, error) {
 			} else {
 				// is this a reference to a value we already had?
 				if v, ok := values[t]; ok {
-					fmt.Printf("check ref ok\n")
 					i = v
 				} else {
 					return "", fmt.Errorf("unknown thing: %s", t)

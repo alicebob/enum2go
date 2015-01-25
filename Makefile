@@ -1,6 +1,6 @@
 .PHONY: all build test vet lint install example
 
-all: build test vet lint
+all: build test vet
 
 build:
 	go build
@@ -12,25 +12,15 @@ vet:
 	go vet
 
 lint:
-	golint
+	golint .
 
-install:
+install: build
 	go install
 
-example:
-	cpp -I ~/src/libnetfilter_conntrack/include/ -I ~/src/libnfnetlink/include/ ~/src/libnetfilter_conntrack/include/libnetfilter_conntrack/libnetfilter_conntrack.h | ./enum2go 
+# some example
+LINUXSRC=~/src/linux-3.14.7
 
-.PHONY: conn.h
-conn.h:
-	cpp -I ~/src/libnetfilter_conntrack/include/ -I ~/src/libnfnetlink/include/ ~/src/libnetfilter_conntrack/include/libnetfilter_conntrack/libnetfilter_conntrack.h > conn.h
-
-.PHONY: go
-go: build
+.PHONY: p9
+p9: build
 	# ./enum2go nf_conntrack_attr nf_conntrack_attr_grp < conn.h
-	./enum2go nf_conntrack_attr_grp < conn.h > gen/hdr.go
-	cd gen && go build
-
-.PHONY: demo
-demo: build
-	# ./enum2go nf_conntrack_attr nf_conntrack_attr_grp < conn.h
-	./enum2go -package demo nf_conntrack_attr_grp < conn.h
+	./enum2go -I ${LINUXSRC}/include p9_msg_t < ${LINUXSRC}/include/net/9p/9p.h
