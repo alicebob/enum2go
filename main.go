@@ -33,7 +33,8 @@ func main() {
 	if *header != "" {
 		var err error
 		if fh, err = os.Open(*header); err != nil {
-			panic(err)
+			fmt.Printf("%s\n", err)
+			os.Exit(1)
 		}
 	}
 
@@ -50,10 +51,12 @@ func main() {
 
 		var err error
 		if fh, err = cmd.StdoutPipe(); err != nil {
-			panic(err)
+			fmt.Printf("%s\n", err)
+			os.Exit(1)
 		}
 		if err := cmd.Start(); err != nil {
-			panic(err)
+			fmt.Printf("%s\n", err)
+			os.Exit(1)
 		}
 	}
 
